@@ -1,19 +1,71 @@
 package M.T;
+/*
+Домашнее задание:
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+        1. Написать функцию, создающую резервную копию всех файлов в директории во вновь созданную папку ./backup
+        2. Доработайте класс Tree и метод print который мы разработали на семинаре.
+         Ваш метод должен распечатать полноценное дерево директорий и файлов относительно корневой директории.
+
+        Данная промежуточная аттестация оценивается по системе "зачет" / "не зачет".
+
+*/
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        displayDirRecursively("src", 0);
+        String sourceDirectory = "./";
+        String backupDirectory = "./backup";
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+        try {
+            createBackup(sourceDirectory, backupDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+
+    }
+
+    public static void displayDirRecursively(String directory, int depth) {
+        File file = new File(directory);
+        if (depth > 0) {
+            for (int i = 0; i < depth; i++) {
+                System.out.print("   ");
+            }
+            System.out.print("|__");
+        }
+        System.out.println(file.getName());
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                displayDirRecursively(files[i].getPath(), depth + 1);
+            }
         }
     }
+
+
+    public static void createBackup(String sourceDirectory, String backupDirectory) throws IOException {
+        // Создаем папку для резервных копий, если ее нет
+        File backupDir = new File(backupDirectory);
+        if (!backupDir.exists()) {
+            backupDir.mkdir();
+        }
+
+        // Получаем список файлов в директории
+        File sourceDir = new File(sourceDirectory);
+        File[] filesToBackup = sourceDir.listFiles();
+
+        // Копируем каждый файл в папку с резервными копиями
+        for (File file : filesToBackup) {
+            if (file.isFile()) {
+                Files.copy(file.toPath(), new File(backupDir.getPath() + "/" + file.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+
 }
